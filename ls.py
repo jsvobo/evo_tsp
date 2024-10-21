@@ -4,7 +4,7 @@ from perturbations.order_changes import move_cities
 
 
 def ls_first_improvement(
-    fitness_fn, initialisation_fn, perturbation_fn,  max_evals=5000,one_step_max=2000
+    fitness_fn, initialisation_fn, perturbation_fn, stop_cond=5000, one_step_max=2000
 ):
     """
     Local search alg. using a given fitness function, initialisation function, perturbation function and distance matrix.
@@ -24,13 +24,14 @@ def ls_first_improvement(
     overall_best = current_solution
     overall_best_fitness = current_fitness
     local_evals = 0
-    iteration =0
+    iteration = 0
 
     # try to move, based on some perturbation function. is this better? if so, move there, if not, try again
     while True:
-        if  evals > max_evals:
+        if evals > stop_cond:
             break
         evals += 1
+        local_evals += 1
 
         # perturb the current solution
         candidate_solution = perturbation_fn(current_solution)
@@ -57,7 +58,6 @@ def ls_first_improvement(
 
             iteration += 1
             local_evals = 0
-            
 
     return {
         "history": iterated_solutions,
@@ -70,8 +70,7 @@ def ls_best_improvement(
     fitness_fn,
     initialisation_fn,
     perturbation_fn,
-    max_steps=200,
-    max_evals=5000,  # not important here
+    stop_cond=200,
 ):
     """
     Local search alg. using a given fitness function, initialisation function, perturbation function and distance matrix.
@@ -91,7 +90,7 @@ def ls_best_improvement(
     overall_best_fitness = current_fitness
 
     # try to move, based on some perturbation function. is this better? if so, move there, if not, try again
-    while iteration < max_steps:
+    while iteration < stop_cond:
         iteration += 1
 
         all_perturbs = np.array(perturbation_fn(current_solution))

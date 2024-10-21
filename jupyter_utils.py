@@ -8,10 +8,12 @@ perturb_name_dict = {
 }
 ls_name_dict = {
     "ls_first_improvement": "First-Improve",
+    "ls_best_improvement": "Best-Improve",
 }
 init_name_dict = {
     "random_init": "Random",
     "better_init": "Better",
+    "constructive_init": "Constructive",
 }
 
 
@@ -40,8 +42,10 @@ def weights_to_matrix(weights):
     for i in range(n - 1):
         matrix[i, i + 1 :] = weights[i]
     mirror = np.triu(matrix) + np.triu(matrix, 1).T
+
     assert is_mirror(mirror), "Matrix is not symmetric"
     assert (mirror.diagonal() == 0).all, "Diagonal is not 0"
+
     return mirror
 
 
