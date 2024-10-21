@@ -49,8 +49,13 @@ def random_init_wrapper(size):
 
     return lambda: random_init(size)
 
+def constructive_heuristics_init_wrapper(size):
+    def constructive_init(num_cities):
+        pass 
+    # do as csx crossover!
+    return lambda: random_init(size)
 
-# fitness fn nad wrapper
+# fitness fn wrapper
 def fitness_wrapper(distances):
     def fitness(distances, order):
         # from the start, sum the distances from one to the next
@@ -69,3 +74,5 @@ def fitness_wrapper(distances):
         return sum_distances
 
     return lambda x: fitness(distances, order=x)
+
+

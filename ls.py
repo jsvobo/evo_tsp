@@ -4,7 +4,7 @@ from perturbations.order_changes import move_cities
 
 
 def ls_first_improvement(
-    fitness_fn, initialisation_fn, perturbation_fn, max_steps=200, max_evals=5000
+    fitness_fn, initialisation_fn, perturbation_fn,  max_evals=5000,one_step_max=2000
 ):
     """
     Local search alg. using a given fitness function, initialisation function, perturbation function and distance matrix.
@@ -23,42 +23,41 @@ def ls_first_improvement(
 
     overall_best = current_solution
     overall_best_fitness = current_fitness
+    local_evals = 0
+    iteration =0
+
     # try to move, based on some perturbation function. is this better? if so, move there, if not, try again
     while True:
-        iteration += 1
-        if iteration > max_steps or evals > max_evals:  # whichever comes first
+        if  evals > max_evals:
             break
+        evals += 1
 
-        local_evals = 0
-        while True:
-            evals += 1
-            local_evals += 1
-            if evals > max_evals:  # will break again in the higher loop
-                break
+        # perturb the current solution
+        candidate_solution = perturbation_fn(current_solution)
+        # calculate and compare fitness
+        candidate_fitness = fitness_fn(candidate_solution)
 
-            # perturb the current solution
-            candidate_solution = perturbation_fn(current_solution)
-            # calculate and compare fitness
-            candidate_fitness = fitness_fn(candidate_solution)
+        # update the overall best solution
+        if candidate_fitness < overall_best_fitness:
+            overall_best = candidate_solution
+            overall_best_fitness = candidate_fitness
 
-            # update the overall best solution
-            if candidate_fitness < overall_best_fitness:
-                overall_best = candidate_solution
-                overall_best_fitness = candidate_fitness
+        # store and go to the next iteration, even when going to the worse
+        if candidate_fitness < current_fitness or local_evals >= one_step_max:
+            current_solution = candidate_solution
+            current_fitness = candidate_fitness
+            iterated_solutions.append(
+                {
+                    "iteration": iteration,
+                    "fitness": current_fitness,
+                    "solution": current_solution,
+                    "local_evals": local_evals,
+                }
+            )
 
-            # store and go to the next iteration, even when going to the worse
-            if candidate_fitness < current_fitness or local_evals >= 1500:
-                current_solution = candidate_solution
-                current_fitness = candidate_fitness
-                iterated_solutions.append(
-                    {
-                        "iteration": iteration,
-                        "fitness": current_fitness,
-                        "solution": current_solution,
-                        "local_evals": local_evals,
-                    }
-                )
-                break
+            iteration += 1
+            local_evals = 0
+            
 
     return {
         "history": iterated_solutions,
