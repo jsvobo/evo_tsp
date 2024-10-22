@@ -34,7 +34,7 @@ def perturb_switch(x):
 
 def perturb_invert(x):
     # move a city to i different part in the order, at random
-    return perturb(close_random_indices, invert_subseq, x)
+    return perturb(random_idcs, invert_subseq, x)
 
 
 def all_perturbations(op, prev_order):

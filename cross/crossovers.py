@@ -45,3 +45,31 @@ def crossover_scx(distance_matrix, parent_a, parent_b):
 
     assert order_is_valid(new_order), "invalid order created by SCX crossover"
     return np.array(new_order)
+
+
+def crossover_pmx(distance_matrix, parent_a, parent_b):
+    # partial mapped crossover
+    n = len(parent_a)
+    idx_a, idx_b = np.random.choice(n, 2, replace=False)
+    idx_a, idx_b = min(idx_a, idx_b), max(idx_a, idx_b)
+
+    child = parent_a.copy()
+    for i in range(idx_a, idx_b + 1):
+        to_insert = parent_b[i]
+        was_before = child[i]
+        idx_instead = np.where(child == to_insert)[0][0]
+        child[i] = to_insert
+        child[idx_instead] = was_before
+
+    assert order_is_valid(child), "invalid order created by PMX crossover"
+    return child
+
+
+if __name__ == "__main__":
+    s = np.array([8, 1, 3, 2, 7, 5, 4, 6, 0, 9])
+    t = np.array([9, 3, 7, 8, 2, 6, 5, 1, 0, 4])
+    print("s: ", s)
+    print("t: ", t)
+
+    d = None  # for compatibility
+    print(crossover_pmx(d, s, t))
