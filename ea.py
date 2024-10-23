@@ -134,9 +134,6 @@ def ea_alg(
                 "evals": evaluations,
             }
         )
-        print(
-            f"Generation {generation}: {fitness_list[best_idx]}, {np.mean(fitness_list)}"
-        )
 
         generation += 1
 

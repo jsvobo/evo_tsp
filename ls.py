@@ -135,8 +135,8 @@ def ls_first_improvement_with_reinit(
 def ls_best_improvement(
     fitness_fn,
     initialisation_fn,
-    perturbation_fn,
-    stop_cond=200,
+    perturbation_operation,
+    stop_cond=5000,
 ):
     """
     Local search alg. using a given fitness function, initialisation function, perturbation function and distance matrix.
@@ -150,18 +150,37 @@ def ls_best_improvement(
     # initialisation
     current_solution = initialisation_fn()  # curried for the specific size beforehand!
     current_fitness = fitness_fn(current_solution)
-    iteration = 0
 
     overall_best = current_solution
     overall_best_fitness = current_fitness
 
+    evaluations = 0
+    iteration = 0
+    n = len(current_solution)
+    indices = [(min(i, j), max(i, j)) for i in range(n) for j in range(n) if i != j]
+    dict_solved = {}
+
     # try to move, based on some perturbation function. is this better? if so, move there, if not, try again
-    while iteration < stop_cond:
-        iteration += 1
+    while evaluations < stop_cond:
 
-        all_perturbs = np.array(perturbation_fn(current_solution))
-        all_fitness = np.array([fitness_fn(p) for p in all_perturbs])
+        all_perturbs = []
+        all_fitness = []
+        for idx in indices:
+            order = perturbation_operation(current_solution, idx[0], idx[1])
+            order_as_key = tuple(order)
+            if order_as_key in dict_solved.keys():
+                fitness = dict_solved[order_as_key]
+            else:
+                fitness = fitness_fn(order)
+                evaluations += 1
+                dict_solved[order_as_key] = fitness
 
+                if evaluations >= stop_cond:
+                    break
+            all_perturbs.append(order)
+            all_fitness.append(fitness)
+
+        all_fitness = np.array(all_fitness)
         best_idx = np.argmin(all_fitness)
         best_fitness = all_fitness[best_idx]
         best_order = all_perturbs[best_idx]
@@ -178,7 +197,6 @@ def ls_best_improvement(
                 overall_best_fitness = current_fitness
         else:  # no betterm restart the problem
             restarted = True
-            # current_solution = initialisation_fn()
             current_solution = all_perturbs[np.random.randint(len(all_perturbs))]
             current_fitness = fitness_fn(current_solution)
 

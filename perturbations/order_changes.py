@@ -28,7 +28,6 @@ def switch_cities(order, idx_from, idx_to):
 
 
 def move_cities(order, idx_from, idx_to):
-    # compose the new order of cities
     new_order = []
     num_moving = order[idx_from]  # which city do I move
     for i, city in enumerate(order):

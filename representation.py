@@ -49,11 +49,25 @@ def random_init_wrapper(size):
 
     return lambda: random_init(size)
 
-def constructive_heuristics_init_wrapper(size):
+
+def constructive_heuristics_init_wrapper(size, dist_matrix):
     def constructive_init(num_cities):
-        pass 
-    # do as csx crossover!
-    return lambda: random_init(size)
+        idx = np.random.randint(num_cities)
+        taken = np.zeros(num_cities, dtype=bool)
+        taken[idx] = True
+        order = [idx]
+        while len(order) < num_cities:
+            indices = np.argsort(dist_matrix[idx])
+            for i in indices:
+                if not taken[i]:
+                    order.append(i)
+                    taken[i] = True
+                    idx = i
+                    break
+        return np.array(order)
+
+    return lambda: constructive_init(size)
+
 
 # fitness fn wrapper
 def fitness_wrapper(distances):
@@ -74,5 +88,3 @@ def fitness_wrapper(distances):
         return sum_distances
 
     return lambda x: fitness(distances, order=x)
-
-
